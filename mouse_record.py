@@ -45,10 +45,10 @@ def on_click(x, y, button, pressed):
         if str(button)[7:7+6] == 'left':
             event = 'PRESS_LEFT'
         else:
-            event = 'RELEASE_LEFT'
-    else:
-        if str(button)[7:7+6] == 'right':
             event = 'PRESS_RIGHT'
+    else:
+        if str(button)[7:7+6] == 'left':
+            event = 'RELEASE_LEFT'
         else:
             event = 'RELEASE_RIGHT'
     RECORD_FILE.append([time.time(), event, (x, y)])

@@ -4,6 +4,8 @@ import pickle
 
 mouse = Controller()
 
+file_name = "Sun Mar  5 23:12:25 2023"
+
 '''
 [
     [time, event, position],
@@ -57,8 +59,6 @@ def play_record(record):
         time.sleep(record[i+1][0]-record[i][0])
         play_frame(record[i+1])
 
-
-file_name = "Sun Mar  5 23:04:47 2023"
 
 with open("LOG/" + file_name, "rb") as f:
     record = pickle.load(f)
