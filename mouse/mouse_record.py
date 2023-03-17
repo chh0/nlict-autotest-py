@@ -61,11 +61,16 @@ def on_scroll(x, y, dx, dy):
 
 # Collect events until released
 
-with mouse.Listener(
-        on_move=on_move,
-        on_click=on_click,
-        on_scroll=on_scroll) as listener:
-    listener.join()
+def record():
+    with mouse.Listener(
+            on_move=on_move,
+            on_click=on_click,
+            on_scroll=on_scroll) as listener:
+        listener.join()
+
+
+if __name__ == '__main__':
+    record()
 
 # ...or, in a non-blocking fashion:
 # listener = mouse.Listener(
