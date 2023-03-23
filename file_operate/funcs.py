@@ -17,7 +17,7 @@ def write_lines_to_files(lines, PATH):
             f.write(i)
 
 def move_play_file(Path0, Path1, file_name):
-    os.system('mv ' + Path0 + '/' + file_name + ' ' + Path1 + '/' + file_name)
+    os.system('cp ' + Path0 + '/' + file_name + ' ' + Path1 + '/' + file_name)
 
 
 # lines = ['123', '234\n', '32543\n']

@@ -4,22 +4,64 @@ from file_operate.funcs import move_play_file
 
 from file_operate import change_config
 from grsim_operate import grsim
+from file_operate import ini_operate
 
 PATH = "../kun_latast/Kun2/ZBin/"
 TestPATH = "../kun_latast/Kun2/ZBin/lua_scripts/play/Test/"
+LuaFilePATH = "../kun_latast/Kun2/ZBin/lua_scripts/"
 ConfigFilePATH = "../kun_latast/Kun2/ZBin/lua_scripts/Config.lua"
 
-
+# 1st
+# open Athena
 def Athena_open():
     os.system(PATH + "Athena")
 
-def Set_lua(play_name):
-    change_config.change_test_mode(True, ConfigFilePATH)
-    change_config.add_to_gTestPlayTable(play_name, ConfigFilePATH)
-    move_play_file('plays', TestPATH, play_name)
+# 2nd
+# init Athena
 
 
+# 3rd
+# init Lua script
+ini_data = {
+    'MAIN':{
+        'yellow':"Testxxx",
+        'blue':"Test7777x",
+        'test':'true',
+    }
+}
+
+def Set_ini(PATH, dict):
+    ini_operate.write_ini(PATH, dict)
+
+def Init_Lua():
+    move_play_file('plays', TestPATH, "Test7777x.lua")
+    move_play_file('plays', TestPATH, "Testxxx.lua")
+    Set_ini(LuaFilePATH+'chenv.ini', ini_data) 
 # funcs.print_file(ConfigFilePATH)
-grsim.reset()
-    
-# print_file(ConfigFilePATH)
+# grsim.reset()
+
+# 1st
+# open Athena
+
+# 2nd
+# init Athena
+
+# 3rd
+# init Lua script
+
+# 4th
+# run medusa of both side
+
+# 5th
+# kill both side of medusa
+
+# 6th
+# end process
+
+
+if __name__ == "__main__":
+    move_play_file('plays', TestPATH, "Test7777x.lua")
+    move_play_file('plays', TestPATH, "Testxxx.lua")
+    Set_ini(LuaFilePATH+'chenv.ini', ini_data) 
+
+

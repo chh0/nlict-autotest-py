@@ -12,6 +12,7 @@ function load(fileName)
         end
         local param, value = line:match('^([%w|_]+)%s-=%s-(.+)$');
         if(param and value ~= nil)then
+            value = string.gsub(value, '^%s*(.-)%s*$', '%1')
             if(tonumber(value))then
                 value = tonumber(value);
             elseif(value == 'true')then
@@ -57,7 +58,7 @@ function WriteIni(IniPath,Section,Key,Value)
 end
 
 local data = load('/home/zjunlict/chh/chenv1/lua_test/zss.ini')
-print(data.BallSpeed.limitSpeed)
+print(data.BallSpeed.maxSpeed)
 
 -- local keyset={}
 -- local n=0
