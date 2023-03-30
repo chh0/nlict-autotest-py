@@ -1,9 +1,8 @@
 # import os
 
 # from file_operate.funcs import move_play_file
-
-# from file_operate import change_config
 # from grsim_operate import grsim
+# from file_operate import change_config
 # from file_operate import ini_operate
 
 # PATH = "../kun_latast/Kun2/ZBin/"
@@ -30,17 +29,17 @@
 #     Set_ini(LuaFilePATH+'chenv.ini', ini_data) 
 
 
-# TODO get info from Config.lua
-#      move play file here
+# TODO get info from Config.lua done
+#      move play file here done
 #      do essential changes
-#      put generated file into Test/
+#      put generated file into Test/ done
 #
 #      launch both side of medusa --done
 #
 #      find a way to do grsim reset
 
 # if __name__ == "__main__":
-#     grsim.reset()
+#     grsim.reset("scene1")
 
 
 
@@ -58,6 +57,15 @@ import os
 import threading
 import time
 import re
+import socket
+
+UDP_IP = "127.0.0.1"
+UDP_PORT = 24333
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind((UDP_IP, UDP_PORT))
+
+from grsim_operate import grsim
+
 PATH = "/home/zjunlict/chh/kun_latast/Kun2/ZBin/"
 
 def r():
@@ -127,6 +135,9 @@ def main():
     if -1 in [IS_TEST_MODE, USE_AUTO_TEST, AUTO_TEST_B, AUTO_TEST_Y]:
         print("load config err!")
         return
+    if not IS_TEST_MODE or not USE_AUTO_TEST:
+        print("config setting err")
+        return
 
     # get given play path from name
     path_blue = find_play(AUTO_TEST_B)
@@ -153,12 +164,29 @@ def main():
     os.system("cp ./temp/AUTO_TEST_Y.lua " + PATH + "lua_scripts/play/Test/AUTO_TEST_Y.lua")
 
     ## Main cycle
+    # start grsim
+
+    # load scene
+    grsim.reset("scene1")
+
     # start medusa
     start_medusa()
 
     # doing cycle
+    max_cycle = 10
+    cnt_cycle = 0
     while True:
-        pass
+        data, addr = sock.recvfrom(1024)
+        message = data.decode()
+        print(message)
+        if "RESET" in message:
+            cnt_cycle += 1
+            print("cycle count: ", cnt_cycle)
+            grsim.reset("scene1")
+            time.sleep(3)
+        if cnt_cycle >= max_cycle:
+            break
+
 
     # end medusa
     kill_medusa()

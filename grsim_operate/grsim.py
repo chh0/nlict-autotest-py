@@ -1,6 +1,5 @@
 import socket
-import sys
-
+import os
 # import .protos_py.grSim_Packet_pb2 as grSim_Packet_pb2
 from .protos_py import grSim_Packet_pb2
 
@@ -68,12 +67,24 @@ class grSimCommunicator:
         # print("send message:")
         # print(sendMsg)
 
-def reset():
+def reset(scene_name):
     comm = grSimCommunicator()
-    comm.set_position(0, 0, 0, 1000)
-    comm.set_position(1, 0, 0, 2000)
-    comm.set_ball_info([1000, 1000, 0, 0])
+    # print(os.system("pwd"))
+    with open("scene/" + scene_name + ".txt", "r") as f:
+        lines = f.readlines()
+    for i in lines:
+        if "end" in i:
+            break
+        i = i[:-1]
+        list = i.split(" ")
+        if list[0] == "b":
+            comm.set_ball_info([int(list[1]),int(list[2]),int(list[3]),int(list[4])])
+        elif list[0] == "c":
+            comm.set_position(int(list[1]),int(list[2]),int(list[3]),int(list[4]))
     comm.reset()
+    # comm.set_position(0, 0, 0, 1000)
+    # comm.set_position(1, 0, 0, 2000)
+    # comm.set_ball_info([1000, 1000, 0, 0])
 
 if __name__ == "__main__":
-    reset()
+    reset("scene1")
