@@ -37,19 +37,14 @@ end
 -- end
 
 
-
+-- 需要记数据时取消注释，需要改路径
 function WriteFile()
-	local fileName = "/home/zjunlict/chh/kun_latast/temp/points.txt"
-	local file = io.open("/home/zjunlict/chh/kun_latast/temp/points.txt","a+")
-	local contents = ''
-	contents = contents..tostring(player.posX("Kicker"))..','..tostring(player.posY("Kicker"))
-	-- io.output(file)
-	-- local file = io.output("points.txt","a");
-	file:write(contents..'\n')
-    file:close()
-	-- period=period+1
-	-- io.flush()
-	-- io.close()
+	-- local fileName = "/home/zjunlict/chh/kun_latast/temp/points.txt"
+	-- local file = io.open(fileName,"a+")
+	-- local contents = ''
+	-- contents = contents..tostring(player.posX("Kicker"))..','..tostring(player.posY("Kicker"))
+	-- file:write(contents..'\n')
+    -- file:close()
 end
 
 
@@ -102,7 +97,7 @@ firstState = "run1",
 	match = "k"
 },
 
-name = "GoRectangle",
+name = "AUTO_TEST_Y",
 applicable ={
 	exp = "a",
 	a = true

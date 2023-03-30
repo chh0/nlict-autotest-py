@@ -1,69 +1,210 @@
+# import os
+
+# from file_operate.funcs import move_play_file
+
+# from file_operate import change_config
+# from grsim_operate import grsim
+# from file_operate import ini_operate
+
+# PATH = "../kun_latast/Kun2/ZBin/"
+# LuaFilePATH = PATH + "lua_scripts/"
+# TestPATH = LuaFilePATH + "play/Test/"
+# ConfigFilePATH = LuaFilePATH + "Config.lua"
+
+# def Athena_open():
+#     os.system(PATH + "Athena")
+
+# ini_data = {
+#     'MAIN':{
+#         'yellow':"autotest_blue",
+#         'blue':"autotest_yellow",
+#     }
+# }
+
+# def Set_ini(PATH, dict):
+#     ini_operate.write_ini(PATH, dict)
+
+# def Init_Lua():
+#     move_play_file('plays', TestPATH, "GoRectangle.lua")
+#     move_play_file('plays', TestPATH, "GoRectangle.lua")
+#     Set_ini(LuaFilePATH+'chenv.ini', ini_data) 
+
+
+# TODO get info from Config.lua
+#      move play file here
+#      do essential changes
+#      put generated file into Test/
+#
+#      launch both side of medusa --done
+#
+#      find a way to do grsim reset
+
+# if __name__ == "__main__":
+#     grsim.reset()
+
+
+
+
+
+
+
+
+
+
+
+
+
 import os
+import threading
+import time
+import re
+PATH = "/home/zjunlict/chh/kun_latast/Kun2/ZBin/"
 
-from file_operate.funcs import move_play_file
+def r():
+    os.system("./open_medusa.sh")
 
-from file_operate import change_config
-from grsim_operate import grsim
-from file_operate import ini_operate
+def start_medusa():
+    os.system("pkill Medusa")
+    s1 = threading.Thread(target=r)
+    s2 = threading.Thread(target=r)
+    s1.start()
+    time.sleep(3)
+    s2.start()
 
-PATH = "../kun_latast/Kun2/ZBin/"
-TestPATH = "../kun_latast/Kun2/ZBin/lua_scripts/play/Test/"
-LuaFilePATH = "../kun_latast/Kun2/ZBin/lua_scripts/"
-ConfigFilePATH = "../kun_latast/Kun2/ZBin/lua_scripts/Config.lua"
+def kill_medusa():
+    os.system("pkill Medusa")
 
-# 1st
-# open Athena
-def Athena_open():
-    os.system(PATH + "Athena")
+# "NUNIUND = 'r23ewr33r'" in lines
+# get_value("NUNIUND", lines) to get 'r23ewr33r'
+def get_value(attr, lines):
+    for i in lines:
+        parts = re.split("( |=|'|\"|\n)", i)
+        parts = [p for p in parts if p not in (' ', '=', "'", '"', '\n') and p]
+        # print(parts)
+        if len(parts) > 1 and parts[0] == attr:
+            if parts[1] == "true":
+                return True
+            elif parts[1] == "false":
+                return False
+            else:
+                return parts[1]
+    return -1
+
+def find_play(name):
+    dir_path = PATH + "lua_scripts/play"
+    for root, dirs, files in os.walk(dir_path):
+        if name+'.lua' in files:
+            file_path = os.path.join(root, name+'.lua')
+            return file_path
+    else:
+        return ""
+
+def change_play_name(PATH, original, new):
+    flag = False
+    with open(PATH, "r") as f:
+        lines = f.readlines()
+    for i in range(len(lines)):
+        if "name" in lines[i] and original in lines[i]:
+            flag = True
+            lines[i] = lines[i].replace(original, new)
+            break
+    with open(PATH, "w") as f:
+        f.writelines(lines)
+    if flag:
+        return 1
+    return 0
 
 
-# 2nd
-# init Athena
+def main():
+    ## Init
+    # get info from config.lua
+    with open(PATH + "lua_scripts/Config.lua", "r") as f:
+        lines = f.readlines()
+    IS_TEST_MODE = get_value("IS_TEST_MODE", lines)
+    USE_AUTO_TEST = get_value("USE_AUTO_TEST", lines)
+    AUTO_TEST_B = get_value("AUTO_TEST_B", lines)
+    AUTO_TEST_Y = get_value("AUTO_TEST_Y", lines)
+    if -1 in [IS_TEST_MODE, USE_AUTO_TEST, AUTO_TEST_B, AUTO_TEST_Y]:
+        print("load config err!")
+        return
+
+    # get given play path from name
+    path_blue = find_play(AUTO_TEST_B)
+    path_yellow = find_play(AUTO_TEST_Y)
+    if not path_blue or not path_yellow:
+        print("find play err")
+        return
+    
+    # pull file and rename
+    os.system("cp " + path_blue + " ./temp/AUTO_TEST_B.lua")
+    os.system("cp " + path_yellow + " ./temp/AUTO_TEST_Y.lua")
+
+    # add something into lua script
+    b_changed = change_play_name("./temp/AUTO_TEST_B.lua", AUTO_TEST_B, "AUTO_TEST_B")
+    y_changed = change_play_name("./temp/AUTO_TEST_Y.lua", AUTO_TEST_Y, "AUTO_TEST_Y")
+    if not b_changed or not y_changed:
+        print("change name err")
+        return
 
 
-# 3rd
-# init Lua script
-ini_data = {
-    'MAIN':{
-        'yellow':"GoRectangle",
-        'blue':"GoRectangle",
-        'test':'true',
-    }
-}
 
-def Set_ini(PATH, dict):
-    ini_operate.write_ini(PATH, dict)
+    # put file back into lua_scripts
+    os.system("cp ./temp/AUTO_TEST_B.lua " + PATH + "lua_scripts/play/Test/AUTO_TEST_B.lua")
+    os.system("cp ./temp/AUTO_TEST_Y.lua " + PATH + "lua_scripts/play/Test/AUTO_TEST_Y.lua")
 
-def Init_Lua():
-    move_play_file('plays', TestPATH, "GoRectangle.lua")
-    move_play_file('plays', TestPATH, "GoRectangle.lua")
-    Set_ini(LuaFilePATH+'chenv.ini', ini_data) 
-# funcs.print_file(ConfigFilePATH)
-grsim.reset()
+    ## Main cycle
+    # start medusa
+    start_medusa()
 
-# 1st
-# open Athena
+    # doing cycle
+    while True:
+        pass
 
-# 2nd
-# init Athena
+    # end medusa
+    kill_medusa()
 
-# 3rd
-# init Lua script
-
-# 4th
-# run medusa of both side
-
-# 5th
-# kill both side of medusa
-
-# 6th
-# end process
+    
 
 
 if __name__ == "__main__":
-    Init_Lua()
-    # move_play_file('plays', TestPATH, "TestMove2.lua")
-    # move_play_file('plays', TestPATH, "messi_8v8.lua")
-    # Set_ini(LuaFilePATH+'chenv.ini', ini_data) 
+    main()
+    pass
 
+# change_play_name("./temp/AUTO_TEST_B.lua", "TestMove3", "AUTO_TEST_B")
 
+# dir_path = '/home/zjunlict/chh/kun_latast/Kun2/ZBin/lua_scripts/play'
+
+# for root, dirs, files in os.walk(dir_path):
+#     if 'TestMove3.lua' in files:
+#         file_path = os.path.join(root, 'TestMove3.lua')
+#         print('Found file:', file_path)
+#         break
+# else:
+#     print('File not found in', dir_path)
+
+# print(get_value("USE_AUTO_TEST", lines))
+# print(get_value("IS_TEST_MODE", lines))
+# print(get_value("AUTO_TEST_B", lines))
+# print(get_value("AUTO_TEST_Y", lines))
+
+# start_medusa()
+# cnt = 0
+# while True:
+#     time.sleep(1)
+#     print("x")
+#     cnt+=1
+#     if cnt == 10:
+#         kill_medusa()
+# time.sleep(15)
+# print('...')
+# s1.join()
+# s2.join()
+# print('...')
+# ini_data = {
+#     'MAIN':{
+#         'yellow':"autotest_blue",
+#         'blue':"autotest_yellow",
+#     }
+# }
+
+# os.system(PATH + "Medusa")

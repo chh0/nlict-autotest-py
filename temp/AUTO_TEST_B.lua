@@ -4,8 +4,8 @@ local all_num = 0
 local start_poses = {}
 local end_poses = {}
 local time = 50
--- local target_dir = 0
-local target_dir = math.pi/2
+local target_dir = 0
+-- local target_dir = math.pi/2
 local angle_thre = math.pi/10
 local fail_num_max = 3
 local success_num_max = 3
@@ -43,6 +43,12 @@ local showdebug = function()
 	debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,1800),string.format("failed	%d	%d	%d	%d	%d", if_fail[1],if_fail[2],if_fail[3],if_fail[4],if_fail[5]),3)
 	debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,2000),string.format("max_v	%d	%d	%d	%d	%d", max_vel[1],max_vel[2],max_vel[3],max_vel[4],max_vel[5]),3)
 	debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,2200),string.format("max_vl	%d	%d	%d	%d	%d", max_vel_local[1],max_vel_local[2],max_vel_local[3],max_vel_local[4],max_vel_local[5]),3)
+	
+	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,2400),string.format("lead_frare	%s", tostring(autest:C_LeaderHaveFrare())),3) -- added when testing autest cpp file
+	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,2600),string.format("have_frare	%s", tostring(atest.c_havefrare())),3) -- added when testing atest lua file
+	-- autest:set_double(0, 5.5)
+	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,2800),string.format("get_double	%f", tostring(autest:get_double(0))),3) -- added when testing atest lua file
+	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,3000),string.format("lead_frare2	%s", tostring(atest.c_LeaderHaveFrare())),3) -- added when testing autest cpp file
 end
 
 local update_param = function()
@@ -177,6 +183,8 @@ gPlayTable.CreatePlay{
 	},
 	["run1"] = {
 		switch = function()
+			-- autest:H_Send_String("xxx123")
+			atest.h_addtofile("atesttest.txt", debug.getinfo(1).source:match("@?(.*/)"))
 			check_fail()
 			showdebug()
 			get_max_vel()
@@ -217,7 +225,7 @@ gPlayTable.CreatePlay{
 		match = ""
 	},
 
-	name = "TestMove3",
+	name = "AUTO_TEST_B",
 	applicable ={
 		exp = "a",
 		a = true
