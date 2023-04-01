@@ -170,6 +170,7 @@ gPlayTable.CreatePlay{
 	firstState = "init",
 	["init"] = {
 		switch = function()
+			autest:H_Send_String(atest.y_or_b().."[STATE] in [init] ")
 			init()
 			get_poses()
 			return "start"
@@ -178,6 +179,7 @@ gPlayTable.CreatePlay{
 	},
 	["start"] = {
 		switch = function()
+			autest:H_Send_String(atest.y_or_b().."[STATE] in [start] ")
 			showdebug()
 			if bufcnt(check_arrive(),time) then
 				return "run"..1
@@ -196,6 +198,7 @@ gPlayTable.CreatePlay{
 	},
 	["run1"] = {
 		switch = function()
+			autest:H_Send_String(atest.y_or_b().."[STATE] in [run1] ")
 			check_fail()
 			showdebug()
 			get_max_vel()

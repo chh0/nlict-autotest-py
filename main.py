@@ -122,9 +122,58 @@ def change_play_name(PATH, original, new):
         return 1
     return 0
 
+def add_send_state_line(PATH):
+    with open(PATH, "r") as f:
+        lines = f.readlines()
+    end1 = -1
+    end2 = -1
+    for i in range(len(lines)):
+        if re.match(r'^\s*firstState\s*=', lines[i]):
+            end1 = i
+    for i in range(end1, len(lines)):
+        if re.match(r'^\s*name\s*=', lines[i]):
+            end2 = i
+    if end1 == -1 or end2 == -1:
+        print("err in finding firstState")
+        return 0
+    switchs = []
+    state_names = []
+    flag = 0
+    for i in range(end2-1, end1, -1):
+        if re.match(r'^\s*switch\s*=\s*function\s*\(\s*\)', lines[i]):
+            switchs.append(i)
+            if flag == 1:
+                print("err in finding state switch function")
+                return 0
+            flag = 1
+        if flag:
+            m = re.match('\s*\["', lines[i])
+            if m:
+                begin = m.span()[1]
+                end = lines[i][m.span()[1]:].index("\"") + m.span()[1]
+                n = re.match(r'"\]\s*=\s*{', lines[i][end:])
+                # print(n, lines[i][end:])
+                if n:
+                    state_names.append(lines[i][begin:end])
+                    flag = 0
+    spaces = "\t\t\t"
+    for i in range(len(switchs)):
+        lines.insert(switchs[i]+1, spaces + "autest:H_Send_String(atest.y_or_b()..\"[STATE] in [" + state_names[i] + "] \")\n")
+
+    with open(PATH, "w") as f:
+        f.writelines(lines)
+    return 1
+
 
 def main():
     ## Init
+
+    # check if athena running
+    not_Athena_running = os.system("ps cax | grep Athena")
+    if not_Athena_running:
+        print("haven't launched athena yet")
+        return
+    
     # get info from config.lua
     with open(PATH + "lua_scripts/Config.lua", "r") as f:
         lines = f.readlines()
@@ -157,7 +206,11 @@ def main():
         print("change name err")
         return
 
-
+    b_changed = add_send_state_line("./temp/AUTO_TEST_B.lua")
+    y_changed = add_send_state_line("./temp/AUTO_TEST_Y.lua")
+    if not b_changed or not y_changed:
+        print("change name err")
+        return
 
     # put file back into lua_scripts
     os.system("cp ./temp/AUTO_TEST_B.lua " + PATH + "lua_scripts/play/Test/AUTO_TEST_B.lua")
@@ -197,6 +250,56 @@ def main():
 if __name__ == "__main__":
     main()
     pass
+
+
+# PATH = "temp/AUTO_TEST_B.lua"
+# with open(PATH, "r") as f:
+#     lines = f.readlines()
+# end1 = -1
+# end2 = -1
+# for i in range(len(lines)):
+#     if re.match(r'^\s*firstState\s*=', lines[i]):
+#         end1 = i
+# for i in range(end1, len(lines)):
+#     if re.match(r'^\s*name\s*=', lines[i]):
+#         end2 = i
+# switchs = []
+# state_names = []
+# flag = 0
+# for i in range(end2-1, end1, -1):
+#     if re.match(r'^\s*switch\s*=\s*function\s*\(\s*\)', lines[i]):
+#         switchs.append(i)
+#         if flag == 1:
+#             print("err in finding state switch function")
+#         flag = 1
+#     if flag:
+#         m = re.match('\s*\["', lines[i])
+#         if m:
+#             begin = m.span()[1]
+#             end = lines[i][m.span()[1]:].index("\"") + m.span()[1]
+#             n = re.match(r'"\]\s*=\s*{', lines[i][end:])
+#             # print(n, lines[i][end:])
+#             if n:
+#                 state_names.append(lines[i][begin:end])
+#                 flag = 0
+# spaces = "\t\t\t"
+# for i in range(len(switchs)):
+#     lines.insert(switchs[i]+1, spaces + "autest:H_Send_String(\"[STATE] in [" + state_names[i] + "] \")\n")
+#     # print(lines[switchs[i]], end="")
+#     # print(state_names[i])
+
+# with open(PATH, "w") as f:
+#     f.writelines(lines)
+
+# for i in lines:
+#     print(i, end="")
+    
+
+
+# res = os.system("ps cax | grep Athena")
+# # res = os.system("ps cax | grep 'kworker/u64:2-events_unbound'")
+# print (res)
+
 
 # change_play_name("./temp/AUTO_TEST_B.lua", "TestMove3", "AUTO_TEST_B")
 
